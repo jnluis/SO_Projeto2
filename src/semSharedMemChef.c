@@ -117,6 +117,8 @@ static void waitForOrder ()
 {
     /* insert your code here */
 
+    
+
     if (semDown (semgid, sh->mutex) == -1) {                                                      /* enter critical region */
         perror ("error on the up operation for semaphore access (PT)");
         exit (EXIT_FAILURE);
