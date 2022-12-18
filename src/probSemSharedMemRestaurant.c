@@ -63,6 +63,8 @@ int main (int argc, char *argv[])
         info;                                                                                               /* info id */
     int c;
 
+
+
     /* getting log file name */
     if(argc==2) {
         strcpy(nFic, argv[1]);
@@ -75,6 +77,10 @@ int main (int argc, char *argv[])
         exit (EXIT_FAILURE);
     }
     sprintf (num[1], "%d", key);
+
+    //destroys Sem and Shmem, to avoid "error on creating the shared memory region: File exists"
+    shmemDestroy(shmemConnect(key));
+    semDestroy(semConnect(key));
 
     /* creating and initializing the shared memory region and the log file */
     if ((shmid = shmemCreate (key, sizeof (SHARED_DATA))) == -1) { 

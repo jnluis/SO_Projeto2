@@ -160,26 +160,43 @@ static void eat (int id)
 static bool waitFriends(int id)
 {
     bool first = false;
-    FULL_STAT *p_fSt;
 
     if (semDown (semgid, sh->mutex) == -1) {                                                  /* enter critical region */
         perror ("error on the down operation for semaphore access (CT)");
         exit (EXIT_FAILURE);
     }
     /* insert your code here */
-    //save the number of first client in 1st column of table
-    
-  if(p_fSt->tableFirst == 0){
-    p_fSt->tableFirst = id;
-    first = true;
-  }
+    sh->fSt.tableClients++; // número de clientes soma + 1
+
+    if(sh->fSt.tableClients==1){ // se for o primeiro cliente a chegar
+        first=true;
+        sh->fSt.tableFirst=id;
+    }
+    else if(sh->fSt.tableClients==TABLESIZE){ // se for o último cliente a chegar
+        sh->fSt.tableLast=id; // já guarda o id do último
+
+        for(int i=1;i<=TABLESIZE;i++){
+            if (semUp (semgid, sh->friendsArrived) == -1)         /* unlocks friends (the extra up is so they themselves don't block on the down) */
+            { // este if é para verificar se está bem, mas não dá erro se tirar
+                perror ("error on the up operation for semaphore access (CT)");
+                exit (EXIT_FAILURE);
+            }       
+        }
+    }
+
+    sh->fSt.st.clientStat[id] = WAIT_FOR_FRIENDS; // O estado é atualizado
+    saveState (nFic, &(sh->fSt));
     
     if (semUp (semgid, sh->mutex) == -1)                                                      /* exit critical region */
     { perror ("error on the up operation for semaphore access (CT)");
         exit (EXIT_FAILURE);
     }
-
     /* insert your code here */
+    // FAZER SEMPRE o semDown fora da região crítica
+    if (semDown (semgid, sh->friendsArrived) == -1) {                                                  /* wait for friends */
+        perror ("error on the down operation for semaphore access (CT)");
+        exit (EXIT_FAILURE);
+    }
 
     return first;
 }
