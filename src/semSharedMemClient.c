@@ -175,7 +175,7 @@ static bool waitFriends(int id)
     }
     else if(sh->fSt.tableClients==TABLESIZE){ // se for o último cliente a chegar
         sh->fSt.tableLast=id; // já guarda o id do último
-        sh->fSt.st.clientStat[id] = WAIT_FOR_FOOD; // o último cliente já pode fazer o pedido
+        sh->fSt.st.clientStat[id] = WAIT_FOR_FOOD; // o último cliente já pode esperar pelo pedido. Passa do estado 2 para o 4
         for(int i=1;i<=TABLESIZE;i++){
             if (semUp (semgid, sh->friendsArrived) == -1)         /* unlocks friends (the extra up is so they themselves don't block on the down) */
             { // este if é para verificar se está bem, mas não dá erro se tirar
@@ -185,7 +185,7 @@ static bool waitFriends(int id)
         }
     }
 
-    saveState (nFic, &(sh->fSt));
+    saveState (nFic, &(sh->fSt)); // Mete-se o & porque é um ponteiro, senão dá erro de FULL_STAT ser diferente de FULL_STAT*
     
     if (semUp (semgid, sh->mutex) == -1)                                                      /* exit critical region */
     { perror ("error on the up operation for semaphore access (CT)");
@@ -220,14 +220,16 @@ static void orderFood (int id)
     }
 
     /* insert your code here */
-    sh->fSt.st.clientStat[id] = FOOD_REQUEST; // O estado é atualizado
-
+    
+    sh->fSt.st.clientStat[id] = FOOD_REQUEST; // O estado é atualizado para o estado 3
+    
     // O pedido é feito ao waiter
     if (semUp (semgid, sh->requestReceived) == -1)         /* unlocks waiter */
     { // este if é para verificar se está bem, mas não dá erro se tirar
         perror ("error on the up operation for semaphore access (CT)");
         exit (EXIT_FAILURE);
     }
+    saveState (nFic, &(sh->fSt));
 
     if (semUp (semgid, sh->mutex) == -1)                                                      /* exit critical region */
     { perror ("error on the up operation for semaphore access (CT)");
