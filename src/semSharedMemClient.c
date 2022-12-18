@@ -160,14 +160,20 @@ static void eat (int id)
 static bool waitFriends(int id)
 {
     bool first = false;
+    FULL_STAT *p_fSt;
 
     if (semDown (semgid, sh->mutex) == -1) {                                                  /* enter critical region */
         perror ("error on the down operation for semaphore access (CT)");
         exit (EXIT_FAILURE);
     }
-
     /* insert your code here */
-
+    //save the number of first client in 1st column of table
+    
+  if(p_fSt->tableFirst == 0){
+    p_fSt->tableFirst = id;
+    first = true;
+  }
+    
     if (semUp (semgid, sh->mutex) == -1)                                                      /* exit critical region */
     { perror ("error on the up operation for semaphore access (CT)");
         exit (EXIT_FAILURE);
