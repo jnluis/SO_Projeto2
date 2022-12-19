@@ -116,6 +116,7 @@ int main (int argc, char *argv[])
 static void waitForOrder ()
 {
     /* insert your code here */
+    
 
     
 
@@ -123,7 +124,8 @@ static void waitForOrder ()
         perror ("error on the up operation for semaphore access (PT)");
         exit (EXIT_FAILURE);
     }
-
+    sh->fSt.st.chefStat = WAIT_FOR_ORDER;
+    saveState (nFic, &(sh->fSt));
     /* insert your code here */
 
     if (semUp (semgid, sh->mutex) == -1) {                                                      /* exit critical region */

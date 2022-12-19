@@ -237,10 +237,10 @@ static void orderFood (int id)
     }
 
     /* insert your code here */
-    if (semDown (semgid, sh->requestReceived) == -1) {                                                  /* wait for food */
-        perror ("error on the down operation for semaphore access (CT)");
-        exit (EXIT_FAILURE);
-    }
+    // comentei este if porque if porque quem faz o Down é o waiter (semDown (semgid, sh->requestReceived) == -1) {                                                  /* wait for food */
+       // perror ("error on the down operation for semaphore access (CT)");
+       // exit (EXIT_FAILURE);
+    //} 
 }
 
 /**

@@ -144,32 +144,35 @@ int main (int argc, char *argv[])
 static int waitForClientOrChef()
 {
     int ret=0; 
+
     if (semDown (semgid, sh->mutex) == -1)  {                                                  /* enter critical region */
         perror ("error on the up operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }
     /* insert your code here */
-    // A condição de partida, está mal, o que faz com que o waiter comece logo a 1
-      if (semUp (semgid, sh->requestReceived) == -1)        
-    { // este if é para verificar se está bem, mas não dá erro se tirar
-        perror ("error on the up operation for semaphore access (CT)");
-        exit (EXIT_FAILURE);
-    }
-        sh->fSt.st.waiterStat = INFORM_CHEF;
-        ret= FOODREQ; // vai chamar depois a outra função informChef
-        saveState (nFic, &(sh->fSt));
-        
-
+    sh->fSt.st.waiterStat = WAIT_FOR_REQUEST;
+    saveState (nFic, &(sh->fSt));
+   
     if (semUp (semgid, sh->mutex) == -1)      {                                             /* exit critical region */
         perror ("error on the down operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }
 
-        if (semDown (semgid, sh->requestReceived) == -1)        
+   if (semDown (semgid, sh->requestReceived) == -1)        
     { 
         perror ("error on the up operation for semaphore access (CT)");
         exit (EXIT_FAILURE);
     }
+        ret= FOODREQ; // vai chamar depois a outra função informChef
+        
+
+
+
+
+
+
+
+
 
     /* insert your code here */
 
@@ -177,7 +180,6 @@ static int waitForClientOrChef()
         perror ("error on the up operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }
-
     /* insert your code here */
 
     if (semUp (semgid, sh->mutex) == -1) {                                                  /* exit critical region */
@@ -202,8 +204,14 @@ static void informChef ()
         perror ("error on the up operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }
-
     /* insert your code here */
+    sh->fSt.st.waiterStat = INFORM_CHEF;
+    saveState (nFic, &(sh->fSt));
+    
+    if (semUp (semgid, sh->waitOrder) == -1)      {    // vou iniciar aqui o semaforo do chef, para depois dar down na função waitForOrder dele()
+        perror ("error on the down operation for semaphore access (WT)");
+        exit (EXIT_FAILURE);
+    }
 
     if (semUp (semgid, sh->mutex) == -1)                                                   /* exit critical region */
     { perror ("error on the down operation for semaphore access (WT)");
