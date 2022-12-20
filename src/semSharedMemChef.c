@@ -118,8 +118,6 @@ static void waitForOrder ()
     /* insert your code here */
     
 
-    
-
     if (semDown (semgid, sh->mutex) == -1) {                                                      /* enter critical region */
         perror ("error on the up operation for semaphore access (PT)");
         exit (EXIT_FAILURE);
@@ -144,12 +142,23 @@ static void processOrder ()
 {
     usleep((unsigned int) floor ((MAXCOOK * random ()) / RAND_MAX + 100.0));
 
+    if (semDown (semgid, sh->waitOrder) == -1)      {   
+        perror ("error on the down operation for semaphore access (WT)");
+        exit (EXIT_FAILURE);
+    } 
+
     if (semDown (semgid, sh->mutex) == -1) {                                                      /* enter critical region */
         perror ("error on the up operation for semaphore access (PT)");
         exit (EXIT_FAILURE);
     }
 
     /* insert your code here */
+     sh->fSt.st.chefStat = COOK;
+    saveState (nFic, &(sh->fSt));
+
+// é preciso por aqui um if para o sh->fSt.foodRequest=1; fazer alguma coisa
+    sh->fSt.foodRequest=0; // limpar as outras flags, para depois poder entrar nas outras funções
+    sh->fSt.foodReady=1; // é suposto dar o assign a alguma coisa?
 
     if (semUp (semgid, sh->mutex) == -1) {                                                      /* exit critical region */
         perror ("error on the up operation for semaphore access (PT)");
@@ -157,5 +166,7 @@ static void processOrder ()
     }
 
     /* insert your code here */
+    sh->fSt.st.chefStat = REST;
+    saveState (nFic, &(sh->fSt));
 }
 

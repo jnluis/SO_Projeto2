@@ -230,6 +230,7 @@ static void orderFood (int id)
         exit (EXIT_FAILURE);
     }
     saveState (nFic, &(sh->fSt));
+       sh->fSt.foodRequest=1;
 
     if (semUp (semgid, sh->mutex) == -1)                                                      /* exit critical region */
     { perror ("error on the up operation for semaphore access (CT)");
