@@ -109,6 +109,7 @@ int main (int argc, char *argv[])
     /* simulation of the life cycle of the waiter */
     int req, nReq=0;
     while(nReq<3) {
+        printf("Entro aqui %d vezes\n",nReq);
         req = waitForClientOrChef();
         switch(req) {
             case FOODREQ:
@@ -159,18 +160,24 @@ static int waitForClientOrChef()
         perror ("error on the down operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }
+    /* insert your code here */
 
-   if (semDown (semgid, sh->requestReceived) == -1)        
-    { 
-        perror ("error on the up operation for semaphore access (CT)");
+
+    if (semDown (semgid, sh->waiterRequest) == -1)      {    
+        perror ("error on the down operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }
+
+    if (semDown (semgid, sh->mutex) == -1)  {                                                  /* enter critical region */
+        perror ("error on the up operation for semaphore access (WT)");
+        exit (EXIT_FAILURE);
+    }
+    /* insert your code here */
     if(sh->fSt.foodRequest== 1){
         printf("foodRequest \n");
         ret= FOODREQ; // vai chamar depois a outra função informChef
     }  
- 
-    printf("%d\n",sh->fSt.foodReady);
+
     if(sh->fSt.foodReady== 1){
         printf("foodReady\n");
         ret= FOODREADY; // vai chamar depois a outra função takeFoodToTable();
@@ -179,20 +186,14 @@ static int waitForClientOrChef()
         printf("Bill\n");
         ret= BILL; // vai chamar depois a outra função ReceivePayment();
     } 
+    sh->fSt.foodRequest=0;
+    sh->fSt.foodReady=0;
+    sh->fSt.paymentRequest=0;
 
-
-
-
-
-
-    /* insert your code here */
-
-    if (semDown (semgid, sh->mutex) == -1)  {                                                  /* enter critical region */
-        perror ("error on the up operation for semaphore access (WT)");
+    if (semUp (semgid, sh->requestReceived) == -1)      {    
+        perror ("error on the down operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }
-    /* insert your code here */
-
 
     if (semUp (semgid, sh->mutex) == -1) {                                                  /* exit critical region */
      perror ("error on the down operation for semaphore access (WT)");
@@ -220,11 +221,6 @@ static void informChef ()
     sh->fSt.st.waiterStat = INFORM_CHEF;
     saveState (nFic, &(sh->fSt));
     sh->fSt.foodOrder=1; // flag of food order from waiter to chef 
-    
-    if (semUp (semgid, sh->waitOrder) == -1)      {    // vou iniciar aqui o semaforo do chef, para depois dar down na função waitForOrder dele()
-        perror ("error on the down operation for semaphore access (WT)");
-        exit (EXIT_FAILURE);
-    }
         
     if (semUp (semgid, sh->mutex) == -1)                                                   /* exit critical region */
     { perror ("error on the down operation for semaphore access (WT)");
@@ -232,7 +228,10 @@ static void informChef ()
     }
 
     /* insert your code here */
-    printf("Final da função informChef \n");
+    if (semUp (semgid, sh->waitOrder) == -1)      {    // vou iniciar aqui o semaforo do chef, para depois dar down na função waitForOrder dele()
+        perror ("error on the down operation for semaphore access (WT)");
+        exit (EXIT_FAILURE);
+    }
 }
 
 /**
@@ -244,26 +243,30 @@ static void informChef ()
  */
 static void takeFoodToTable ()
 {
+    printf("Estou dentro da função takeFoodToTable ()\n");
     if (semDown (semgid, sh->mutex) == -1)  {                                                  /* enter critical region */
         perror ("error on the up operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }
 
-    /* insert your code here  ainda não está a chegar aqui sequer */
-    if( sh->fSt.foodReady==1){
-        printf("Cjego aqiu\n");
-        sh->fSt.st.waiterStat = TAKE_TO_TABLE;
-        saveState (nFic, &(sh->fSt));
-    }
-
+    /* insert your code here */
+    //if( sh->fSt.foodReady==1){ // melhor não usar este if por causa do reset das flags
     if (semUp (semgid, sh->foodArrived) == -1)      { 
         perror ("error on the down operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }
 
-    
+    sh->fSt.st.waiterStat = TAKE_TO_TABLE;
+    saveState (nFic, &(sh->fSt));
+    //}
+ 
     if (semUp (semgid, sh->mutex) == -1)  {                                                  /* exit critical region */
      perror ("error on the down operation for semaphore access (WT)");
+        exit (EXIT_FAILURE);
+    }
+
+    if (semDown (semgid, sh->waiterRequest) == -1)      {  // Este down nao vai dar problemas depois?
+        perror ("error on the down operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }
 }

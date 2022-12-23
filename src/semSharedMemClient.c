@@ -229,8 +229,14 @@ static void orderFood (int id)
         perror ("error on the up operation for semaphore access (CT)");
         exit (EXIT_FAILURE);
     }
+
+    if (semUp (semgid, sh->waiterRequest) == -1)      {    // dar up porque ele aqui está a esperar
+        perror ("error on the down operation for semaphore access (WT)");
+        exit (EXIT_FAILURE);
+    }
+
     saveState (nFic, &(sh->fSt));
-       sh->fSt.foodRequest=1;
+    sh->fSt.foodRequest=1;
 
     if (semUp (semgid, sh->mutex) == -1)                                                      /* exit critical region */
     { perror ("error on the up operation for semaphore access (CT)");

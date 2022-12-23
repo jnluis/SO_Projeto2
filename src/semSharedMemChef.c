@@ -116,7 +116,7 @@ int main (int argc, char *argv[])
 static void waitForOrder ()
 {
     /* insert your code here */
-    if (semDown (semgid, sh->waitOrder) == -1)      {    // vou iniciar aqui o semaforo do chef, para depois dar down na função waitForOrder dele()
+    if (semDown (semgid, sh->waitOrder) == -1)      {    // vou iniciar aqui o semaforo do chef logo down, para depois chamar quando for para fazer a Order()
         perror ("error on the down operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }
@@ -156,23 +156,28 @@ static void processOrder ()
         perror ("error on the up operation for semaphore access (PT)");
         exit (EXIT_FAILURE);
     }
-
     /* insert your code here */
-
 // é preciso por aqui um if para o sh->fSt.foodOrder=1; fazer alguma coisa
-    sh->fSt.foodRequest=0; // limpar as outras flags, para depois poder entrar nas outras funções
-    sh->fSt.foodReady=1; // é suposto dar o assign a alguma coisa?
+    sh->fSt.foodReady=1; // aqui o chef diz que a comida está pronta
+
+    sh->fSt.st.chefStat = REST;
+    saveState (nFic, &(sh->fSt));
+
+//TESTARRRRRRRRRRRRRRRRRR NÂO ESTÀ A FAZER NADA PORQUE È PRECISO DAR DOWN ANTES
+    if (semUp (semgid, sh->waiterRequest) == -1)      {    // dar up porque ele aqui está a esperar
+        perror ("error on the down operation for semaphore access (WT)");
+        exit (EXIT_FAILURE);
+    }
 
     if (semUp (semgid, sh->mutex) == -1) {                                                      /* exit critical region */
         perror ("error on the up operation for semaphore access (PT)");
         exit (EXIT_FAILURE);
     }
-
     /* insert your code here */
-    if( sh->fSt.foodReady==1){
-        sh->fSt.st.chefStat = REST;
-        saveState (nFic, &(sh->fSt));
+    printf("Acabo o procesoOrder() do chef\n");
+    if (semDown (semgid, sh->waitOrder) == -1)      {    // Tou a dar down aqui para o waiter poder fazer o up
+        perror ("error on the down operation for semaphore access (WT)");
+        exit (EXIT_FAILURE);
     }
-    
 }
 
