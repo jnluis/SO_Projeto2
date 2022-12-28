@@ -130,7 +130,6 @@ static void waitForOrder ()
         saveState (nFic, &(sh->fSt));
     }
     
-
     if (semUp (semgid, sh->mutex) == -1) {                                                      /* exit critical region */
         perror ("error on the up operation for semaphore access (PT)");
         exit (EXIT_FAILURE);
@@ -146,24 +145,17 @@ static void waitForOrder ()
 static void processOrder ()
 {
     usleep((unsigned int) floor ((MAXCOOK * random ()) / RAND_MAX + 100.0));
-/*
-    if (semDown (semgid, sh->waitOrder) == -1)      {   
-        perror ("error on the down operation for semaphore access (WT)");
-        exit (EXIT_FAILURE);
-    } */
 
     if (semDown (semgid, sh->mutex) == -1) {                                                      /* enter critical region */
         perror ("error on the up operation for semaphore access (PT)");
         exit (EXIT_FAILURE);
     }
     /* insert your code here */
-// é preciso por aqui um if para o sh->fSt.foodOrder=1; fazer alguma coisa
     sh->fSt.foodReady=1; // aqui o chef diz que a comida está pronta
 
     sh->fSt.st.chefStat = REST;
     saveState (nFic, &(sh->fSt));
 
-//TESTARRRRRRRRRRRRRRRRRR NÂO ESTÀ A FAZER NADA PORQUE È PRECISO DAR DOWN ANTES
     if (semUp (semgid, sh->waiterRequest) == -1)      {    // dar up porque ele aqui está a esperar
         perror ("error on the down operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
@@ -174,7 +166,6 @@ static void processOrder ()
         exit (EXIT_FAILURE);
     }
     /* insert your code here */
-    printf("Acabo o procesoOrder() do chef\n");
     if (semDown (semgid, sh->waitOrder) == -1)      {    // Tou a dar down aqui para o waiter poder fazer o up
         perror ("error on the down operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
