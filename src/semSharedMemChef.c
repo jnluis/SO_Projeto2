@@ -156,17 +156,12 @@ static void processOrder ()
     sh->fSt.st.chefStat = REST;
     saveState (nFic, &(sh->fSt));
 
-    if (semUp (semgid, sh->waiterRequest) == -1)      {    // dar up porque ele aqui está a esperar
-        perror ("error on the down operation for semaphore access (WT)");
-        exit (EXIT_FAILURE);
-    }
-
     if (semUp (semgid, sh->mutex) == -1) {                                                      /* exit critical region */
         perror ("error on the up operation for semaphore access (PT)");
         exit (EXIT_FAILURE);
     }
     /* insert your code here */
-    if (semDown (semgid, sh->waitOrder) == -1)      {    // Tou a dar down aqui para o waiter poder fazer o up
+    if (semUp (semgid, sh->waiterRequest) == -1)      {  // dar up porque ele aqui está a esperar  
         perror ("error on the down operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }
