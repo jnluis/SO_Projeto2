@@ -221,15 +221,14 @@ static void orderFood (int id)
 
     /* insert your code here */
     sh->fSt.st.clientStat[id] = FOOD_REQUEST; // O estado é atualizado para o estado 3
-    
+    sh->fSt.foodRequest=1;
     // O pedido é feito ao waiter
     if (semUp (semgid, sh->waiterRequest) == -1)      {    // dar up porque ele aqui está a esperar
         perror ("error on the down operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }
-
     saveState (nFic, &(sh->fSt));
-    sh->fSt.foodRequest=1;
+    
     if (semUp (semgid, sh->mutex) == -1)                                                      /* exit critical region */
     { perror ("error on the up operation for semaphore access (CT)");
         exit (EXIT_FAILURE);
