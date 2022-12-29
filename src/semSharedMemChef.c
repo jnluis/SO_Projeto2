@@ -116,7 +116,7 @@ int main (int argc, char *argv[])
 static void waitForOrder ()
 {
     /* insert your code here */
-    if (semDown (semgid, sh->waitOrder) == -1)      {    // vou iniciar aqui o semaforo do chef logo down, para depois chamar quando for para fazer a Order()
+    if (semDown (semgid, sh->waitOrder) == -1){
         perror ("error on the down operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }

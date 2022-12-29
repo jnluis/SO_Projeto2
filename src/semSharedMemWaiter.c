@@ -221,7 +221,7 @@ static void informChef ()
         perror("error on the up operation for semaphore access (WT)");
         exit(EXIT_FAILURE);
     }
-    if (semUp (semgid, sh->waitOrder) == -1)      {    // vou iniciar aqui o semaforo do chef, para depois dar down na função waitForOrder dele()
+    if (semUp (semgid, sh->waitOrder) == -1)      {                                  // vou iniciar aqui o semaforo do chef, para depois dar down na função waitForOrder dele()
         perror ("error on the down operation for semaphore access (WT)");
         exit (EXIT_FAILURE);
     }
@@ -230,6 +230,7 @@ static void informChef ()
 /**
  *  \brief waiter takes food to table 
  *
+ * 
  *  Waiter updates its state and takes food to table, allowing the meal to start.
  *  The internal state should be saved.
  *

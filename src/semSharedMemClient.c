@@ -314,7 +314,7 @@ static void waitAndPay(int id)
     }
 
     sh->fSt.st.clientStat[id] = WAIT_FOR_OTHERS; // O estado é atualizado para 6
-        sh->fSt.tableFinishEat++; // incrementa o numero de clientes que terminaram de comer
+    sh->fSt.tableFinishEat++; // incrementa o numero de clientes que terminaram de comer
     saveState(nFic, &(sh->fSt));
 
     if (sh->fSt.tableFinishEat == TABLESIZE)
